@@ -28,13 +28,15 @@ struct ContentView: View {
     }
     
     func load(){
-        do{
-            let url = getDocumentDirectory().appendingPathComponent("notes")
-            let data = try Data(contentsOf: url)
-            
-            notes = try JSONDecoder().decode([Note].self, from: data)
-        } catch {
-            
+        DispatchQueue.main.async {
+            do{
+                let url = getDocumentDirectory().appendingPathComponent("notes")
+                let data = try Data(contentsOf: url)
+                
+                notes = try JSONDecoder().decode([Note].self, from: data)
+            } catch {
+                
+            }
         }
     }
     
@@ -63,9 +65,23 @@ struct ContentView: View {
                 
                 Spacer()
                 
-                Text("\(notes.count)")
+                List {
+                    ForEach(0..<notes.count, id: \.self){ i in
+                        HStack{
+                            Capsule()
+                                .frame(width: 4)
+                                .foregroundColor(.accentColor)
+                            Text(notes[i].text)
+                                .lineLimit(1)
+                                .padding(.leading, 5)
+                        }//:HStack
+                    }
+                }//: List
             }//: VStack
             .navigationTitle("Notes")
+            .onAppear(perform: {
+                load()
+            })
         }
     }
 }
